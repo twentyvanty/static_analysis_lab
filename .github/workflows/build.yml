@@ -1,28 +1,19 @@
-name: SonarCloud
-
+name: Build
 on:
   push:
+    branches:
+      - main
   pull_request:
-
+    types: [opened, synchronize, reopened]
 jobs:
-  scan:
+  sonarqube:
+    name: SonarQube
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v4
         with:
-          python-version: 3.11
-
-      - run: pip install -r requirements.txt
-      - run: PYTHONPATH=src pytest --cov=. --cov-report=xml
-
-      - uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          args: >
-            -Dsonar.projectKey=static-analysis-lab
-            -Dsonar.organization=vanty
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
